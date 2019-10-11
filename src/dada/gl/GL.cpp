@@ -20,7 +20,9 @@
 
 static const char* g_extensions = NULL;
 
-/*
+
+#ifndef DADA_WITH_GLEW
+
 //---------------------------------------------------------
 // VERSION_1_3
 //---------------------------------------------------------
@@ -64,7 +66,9 @@ PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
 PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = NULL;
 PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = NULL;
 PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = NULL;
-*/
+
+#endif // DADA_WITH_GLEW
+
 
 namespace dada
 {
@@ -97,11 +101,6 @@ static void* getGLFuncAddress(const char* name)
 # else
   const GLubyte* nameBytes = reinterpret_cast<const GLubyte*>(name);
   void* p = reinterpret_cast<void*>(glXGetProcAddress(nameBytes));
-  //if (p == NULL)
-  //{
-    //HMODULE module = LoadLibraryA("opengl32.dll");
-    //p = GetProcAddress(module, name);
-  //}
 # endif
   return p;
 }
@@ -128,12 +127,16 @@ bool initGL()
   getLog() << "STATUS: GL version is " << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << endl;
   getLog() << "STATUS: GL extensions are " << g_extensions << endl;
   
+#ifdef DADA_WITH_GLEW
+
   if (glewInit() != GLEW_OK)
   {
     getLog() << "ERROR! Failed to initialize GLEW" << endl;
   }
   
-  /*
+#else // DADA_WITH_GLEW
+  
+
 # if !defined(DADA_GL_CORE_VERSION_1_3) && defined(GL_VERSION_1_3)
   
   DADA_INIT_FN(glActiveTexture, PFNGLACTIVETEXTUREPROC, "glActiveTexture");
@@ -174,7 +177,9 @@ bool initGL()
   DADA_INIT_FN(glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC, "glDeleteFramebuffers");
   DADA_INIT_FN(glFramebufferTexture2D, PFNGLFRAMEBUFFERTEXTURE2DPROC, "glFramebufferTexture2D");
   DADA_INIT_FN(glGenFramebuffers, PFNGLGENFRAMEBUFFERSPROC, "glGenFramebuffers");
-  */
+  
+#endif // DADA_WITH_GLEW
+
   return true;
 }
 
