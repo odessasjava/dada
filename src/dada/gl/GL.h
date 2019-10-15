@@ -105,27 +105,42 @@ extern PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D;
 #endif // VERSION_1_3
 
 
-#if !defined(DADA_GL_CORE_VERSION_1_5) && defined(GL_VERSION_1_4)
+//---------------------------------------------------------
+// VERSION_1_5
+//---------------------------------------------------------
+#if !defined(DADA_GL_CORE_VERSION_1_5) && defined(GL_VERSION_1_5)
 
 // void glBindBuffer(GLenum target, GLuint buffer);
 extern PFNGLBINDBUFFERPROC glBindBuffer;
+// void glBufferData(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
+extern PFNGLBUFFERDATAPROC glBufferData;
+// void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 // void glDeleteBuffers(GLsizei n, const GLuint *buffers);
 extern PFNGLDELETEBUFFERSARBPROC glDeleteBuffers;
 // void glGenBuffers(GLsizei n, GLuint *buffers)
 extern PFNGLGENBUFFERSPROC glGenBuffers;
-
-//GLboolean APIENTRY glIsBuffer (GLuint buffer);
-//GLAPI void APIENTRY glBufferData (GLenum target, GLsizeiptr size, const void *data, GLenum usage);
-//GLAPI void APIENTRY glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
-//GLAPI void APIENTRY glGetBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size, void *data);
-//GLAPI void *APIENTRY glMapBuffer (GLenum target, GLenum access);
-//GLAPI GLboolean APIENTRY glUnmapBuffer (GLenum target);
-//GLAPI void APIENTRY glGetBufferParameteriv (GLenum target, GLenum pname, GLint *params);
-//GLAPI void APIENTRY glGetBufferPointerv (GLenum target, GLenum pname, void **params);
-
+// void glGetBufferParameteriv(GLenum target, GLenum pname, GLint *params);
+extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
+// GLboolean glIsBuffer(GLuint buffer);
+extern PFNGLISBUFFERPROC glIsBuffer;
 
 #endif // VERSION_1_5
 
+
+//---------------------------------------------------------
+// VERSION_3_0
+//---------------------------------------------------------
+#if !defined(DADA_GL_CORE_VERSION_3_0) && defined(GL_VERSION_3_0)
+
+//void glBindVertexArray(GLuint array);
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+//void glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+//void glGenVertexArrays(GLsizei n, GLuint *arrays);
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+
+#endif // VERSION_3_0
 
 
 ////////////---------------------------------------------------------

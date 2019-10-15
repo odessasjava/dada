@@ -35,6 +35,33 @@ PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D = NULL;
 
 #endif // VERSION_1_3
 
+//---------------------------------------------------------
+// VERSION_1_5
+//---------------------------------------------------------
+#if !defined(DADA_GL_CORE_VERSION_1_5) && defined(GL_VERSION_1_5)
+
+PFNGLBINDBUFFERPROC glBindBuffer = NULL;
+PFNGLBUFFERDATAPROC glBufferData = NULL;
+PFNGLBUFFERSUBDATAPROC glBufferSubData = NULL;
+PFNGLDELETEBUFFERSARBPROC glDeleteBuffers = NULL;
+PFNGLGENBUFFERSPROC glGenBuffers = NULL;
+PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv = NULL;
+PFNGLISBUFFERPROC glIsBuffer = NULL;
+
+#endif // VERSION_1_5
+
+
+//---------------------------------------------------------
+// VERSION_3_0
+//---------------------------------------------------------
+#if !defined(DADA_GL_CORE_VERSION_3_0) && defined(GL_VERSION_3_0)
+
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray = NULL;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = NULL;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = NULL;
+
+#endif // VERSION_3_0
+
 
 PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray = NULL;
 PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = NULL;
@@ -91,17 +118,22 @@ static bool isExtSupported(const char* ext, const char* extensions)
 
 static void* getGLFuncAddress(const char* name)
 {
-#ifdef _WIN32
+# ifdef _WIN32
+  
   void* p = wglGetProcAddress(name);
   if (p == NULL)
   {
     HMODULE module = LoadLibraryA("opengl32.dll");
     p = GetProcAddress(module, name);
   }
+
 # else
+  
   const GLubyte* nameBytes = reinterpret_cast<const GLubyte*>(name);
   void* p = reinterpret_cast<void*>(glXGetProcAddress(nameBytes));
+
 # endif
+  
   return p;
 }
 
@@ -120,21 +152,28 @@ static void* getGLFuncAddressLogged(const char* name)
 
 bool initGL()
 {
+  int major = 0;
+  int minor = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, &major);
+  glGetIntegerv(GL_MINOR_VERSION, &minor);
+
   g_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-  
+
   getLog() << "STATUS: GL vendor is " << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << endl;
   getLog() << "STATUS: GL renderer is " << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << endl;
-  getLog() << "STATUS: GL version is " << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << endl;
+  getLog() << "STATUS: GL version as text is " << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << endl;
+  getLog() << "STATUS: GL version as int is " << major << '.' << minor << endl;
+  getLog() << "STATUS: GLSL version is " << reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)) << endl;
   getLog() << "STATUS: GL extensions are " << g_extensions << endl;
   
-#ifdef DADA_WITH_GLEW
+# ifdef DADA_WITH_GLEW
 
   if (glewInit() != GLEW_OK)
   {
     getLog() << "ERROR! Failed to initialize GLEW" << endl;
   }
   
-#else // DADA_WITH_GLEW
+# else // DADA_WITH_GLEW
   
 
 # if !defined(DADA_GL_CORE_VERSION_1_3) && defined(GL_VERSION_1_3)
@@ -146,7 +185,28 @@ bool initGL()
   
 # endif // VERSION_1_3
   
+
+# if !defined(DADA_GL_CORE_VERSION_1_5) && defined(GL_VERSION_1_5)
   
+  DADA_INIT_FN(glBindBuffer, PFNGLBINDBUFFERPROC, "glBindBuffer");
+  DADA_INIT_FN(glBufferData, PFNGLBUFFERDATAPROC, "glBufferData");
+  DADA_INIT_FN(glBufferSubData, PFNGLBUFFERSUBDATAPROC, "glBufferSubData");
+  DADA_INIT_FN(glDeleteBuffers, PFNGLDELETEBUFFERSARBPROC, "glDeleteBuffers");
+  DADA_INIT_FN(glGenBuffers, PFNGLGENBUFFERSPROC, "glGenBuffers");
+  DADA_INIT_FN(glGetBufferParameteriv, PFNGLGETBUFFERPARAMETERIVPROC, "glGetBufferParameteriv");
+  DADA_INIT_FN(glIsBuffer, PFNGLISBUFFERPROC, "glIsBuffer");
+
+# endif // VERSION_1_5
+  
+
+# if !defined(DADA_GL_CORE_VERSION_3_0) && defined(GL_VERSION_3_0)
+  
+  DADA_INIT_FN(glBindVertexArray, PFNGLBINDVERTEXARRAYPROC, "glBindVertexArray");
+  DADA_INIT_FN(glDeleteVertexArrays, PFNGLDELETEVERTEXARRAYSPROC, "glDeleteVertexArrays");
+  DADA_INIT_FN(glGenVertexArrays, PFNGLGENVERTEXARRAYSPROC, "glGenVertexArrays");
+
+# endif // VERSION_3_0
+
   DADA_INIT_FN(glDisableVertexAttribArray, PFNGLDISABLEVERTEXATTRIBARRAYPROC, "glDisableVertexAttribArray");
   DADA_INIT_FN(glEnableVertexAttribArray, PFNGLENABLEVERTEXATTRIBARRAYPROC, "glEnableVertexAttribArray");
   DADA_INIT_FN(glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC, "glVertexAttribPointer");
