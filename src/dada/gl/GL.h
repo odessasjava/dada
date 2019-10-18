@@ -92,7 +92,7 @@
 //---------------------------------------------------------
 #if !defined(DADA_GL_CORE_VERSION_1_3) && defined(GL_VERSION_1_3)
 
-//   1   GL_ARB_multitexture
+/*//   1   GL_ARB_multitexture
 // void glActiveTexture(GLenum texture);
 extern PFNGLACTIVETEXTUREPROC glActiveTexture;
 
@@ -100,7 +100,7 @@ extern PFNGLACTIVETEXTUREPROC glActiveTexture;
 // void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void *data);
 extern PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
 // void glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data);
-extern PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D;
+extern PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D;*/
 
 #endif // VERSION_1_3
 
@@ -174,12 +174,12 @@ extern PFNGLUNIFORM4FVPROC glUniform4fv;
 extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 extern PFNGLUSEPROGRAMPROC glUseProgram;
 
-//  45   GL_ARB_framebuffer_object
+/*//  45   GL_ARB_framebuffer_object
 extern PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
 extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
 extern PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
 extern PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
-extern PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+extern PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;*/
 
 
 #endif // DADA_WITH_GLEW

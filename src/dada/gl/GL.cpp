@@ -9,7 +9,6 @@
 
 #include "dada/gl/GL.h"
 #include "dada/core/Log.h"
-#include <cctype>
 #include <cstring>
 
 #ifdef _WIN32
@@ -28,10 +27,10 @@ static const char* g_extensions = NULL;
 //---------------------------------------------------------
 #if !defined(DADA_GL_CORE_VERSION_1_3) && defined(GL_VERSION_1_3)
 
-PFNGLACTIVETEXTUREPROC glActiveTexture = NULL;
+/*PFNGLACTIVETEXTUREPROC glActiveTexture = NULL;
 
 PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D = NULL;
-PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D = NULL;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D = NULL;*/
 
 #endif // VERSION_1_3
 
@@ -88,11 +87,11 @@ PFNGLUNIFORM4FVPROC glUniform4fv = NULL;
 PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = NULL;
 PFNGLUSEPROGRAMPROC glUseProgram = NULL;
 
-PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = NULL;
+/*PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = NULL;
 PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = NULL;
 PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = NULL;
 PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = NULL;
-PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = NULL;
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = NULL;*/
 
 #endif // DADA_WITH_GLEW
 
@@ -107,7 +106,7 @@ static bool isExtSupported(const char* ext, const char* extensions)
   while ((ptr = strstr(start, ext)) != NULL)
   {
     const char* end = ptr + strlen(ext);
-    if (isspace(*end) || *end == '\0')
+    if (*end == ' ' || *end == '\0')
     {
       return true;
     }
@@ -140,7 +139,11 @@ static void* getGLFuncAddress(const char* name)
 static void* getGLFuncAddressLogged(const char* name)
 {
   void* p = getGLFuncAddress(name);
-  if (p == NULL)
+  if (p != NULL)
+  {
+    getLog() << "STATUS: Initialized GL extension " << name << endl;
+  }
+  else
   {
     getLog() << "ERROR! Failed to initialize GL extension " << name << endl;
   }
@@ -148,23 +151,79 @@ static void* getGLFuncAddressLogged(const char* name)
 }
 
 #define DADA_INIT_FN(var, type, name) \
+  do { var = (type)getGLFuncAddressLogged(name); } while (0);
+
+#define DADA_INIT_NEEDED_FN(var, type, name) \
   do { var = (type)getGLFuncAddressLogged(name); if (var == NULL) return false; } while (0);
+
+static void printExtensions(const char* extensions)
+{
+  getLog() << "STATUS: GL extensions as list are:" << endl;
+  
+  size_t index = 1;
+
+  const char* start = extensions;
+  do 
+  {
+    const size_t len = strcspn(start, " ");
+    if (len > 0)
+    {
+      getLog() << "  " << index << ". ";
+      for (size_t i = 0; i < len; ++i)
+      {
+        getLog() << start[i];
+      }
+      getLog() << endl;
+
+      start += len + 1;
+
+      ++index;
+    }
+  } while (*start != '\0');
+}
 
 bool initGL()
 {
+  const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  if (vendor != NULL)
+  {
+    getLog() << "STATUS: GL vendor is " << vendor << endl;
+  }
+  
+  const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  if (renderer != NULL)
+  {
+    getLog() << "STATUS: GL renderer is " << renderer << endl;
+  }
+
+  const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+  if (version != NULL)
+  {
+    getLog() << "STATUS: GL version as text is " << version << endl;
+  }
+
   int major = 0;
-  int minor = 0;
   glGetIntegerv(GL_MAJOR_VERSION, &major);
-  glGetIntegerv(GL_MINOR_VERSION, &minor);
+  if (major != 0)
+  {
+    int minor = 0;
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    getLog() << "STATUS: GL version as int is " << major << '.' << minor << endl;
+  }
 
+  const char* glsl_version = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+  if (glsl_version != NULL)
+  {
+    getLog() << "STATUS: GLSL version is " << glsl_version << endl;
+  }
+  
   g_extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-
-  getLog() << "STATUS: GL vendor is " << reinterpret_cast<const char*>(glGetString(GL_VENDOR)) << endl;
-  getLog() << "STATUS: GL renderer is " << reinterpret_cast<const char*>(glGetString(GL_RENDERER)) << endl;
-  getLog() << "STATUS: GL version as text is " << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << endl;
-  getLog() << "STATUS: GL version as int is " << major << '.' << minor << endl;
-  getLog() << "STATUS: GLSL version is " << reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)) << endl;
-  getLog() << "STATUS: GL extensions are " << g_extensions << endl;
+  if (g_extensions != NULL)
+  {
+    getLog() << "STATUS: GL extensions as text are " << g_extensions << endl;
+    printExtensions(g_extensions);
+  }
+  
   
 # ifdef DADA_WITH_GLEW
 
@@ -178,10 +237,10 @@ bool initGL()
 
 # if !defined(DADA_GL_CORE_VERSION_1_3) && defined(GL_VERSION_1_3)
   
-  DADA_INIT_FN(glActiveTexture, PFNGLACTIVETEXTUREPROC, "glActiveTexture");
+  /*DADA_INIT_FN(glActiveTexture, PFNGLACTIVETEXTUREPROC, "glActiveTexture");
   
   DADA_INIT_FN(glCompressedTexImage2D, PFNGLCOMPRESSEDTEXIMAGE2DPROC, "glCompressedTexImage2D");
-  DADA_INIT_FN(glCompressedTexSubImage2D, PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC, "glCompressedTexSubImage2D");
+  DADA_INIT_FN(glCompressedTexSubImage2D, PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC, "glCompressedTexSubImage2D");*/
   
 # endif // VERSION_1_3
   
@@ -232,11 +291,11 @@ bool initGL()
   DADA_INIT_FN(glUniformMatrix4fv, PFNGLUNIFORMMATRIX4FVPROC, "glUniformMatrix4fv");
   DADA_INIT_FN(glUseProgram, PFNGLUSEPROGRAMPROC, "glUseProgram");
   
-  DADA_INIT_FN(glBindFramebuffer, PFNGLBINDFRAMEBUFFERPROC, "glBindFramebuffer");
+  /*DADA_INIT_FN(glBindFramebuffer, PFNGLBINDFRAMEBUFFERPROC, "glBindFramebuffer");
   DADA_INIT_FN(glCheckFramebufferStatus, PFNGLCHECKFRAMEBUFFERSTATUSPROC, "glCheckFramebufferStatus");
   DADA_INIT_FN(glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC, "glDeleteFramebuffers");
   DADA_INIT_FN(glFramebufferTexture2D, PFNGLFRAMEBUFFERTEXTURE2DPROC, "glFramebufferTexture2D");
-  DADA_INIT_FN(glGenFramebuffers, PFNGLGENFRAMEBUFFERSPROC, "glGenFramebuffers");
+  DADA_INIT_FN(glGenFramebuffers, PFNGLGENFRAMEBUFFERSPROC, "glGenFramebuffers");*/
   
 #endif // DADA_WITH_GLEW
 
