@@ -18,7 +18,12 @@ VAO::VAO() :
   Object(),
   m_id(0)
 {
+//# ifdef GL_OES_vertex_array_object
+//  glGenVertexArraysOES(1, &m_id);
+//# else
   glGenVertexArrays(1, &m_id);
+//# endif
+  
   GLenum err = glGetError();
   if (m_id == 0 || err != GL_NO_ERROR)
   {

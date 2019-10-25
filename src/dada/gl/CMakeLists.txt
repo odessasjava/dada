@@ -1,7 +1,8 @@
 project ( dada_gl )
 
 if ( WIN32 )
-  find_library ( GL_LIBRARY opengl32 )
+  find_library ( GL_LIBRARY libGLESv2 )
+  #find_library ( GL_LIBRARY opengl32 )
   #find_library ( GLEW_LIBRARY glew32 )
 else ( WIN32 )
   find_package ( OpenGL REQUIRED )

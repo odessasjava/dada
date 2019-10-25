@@ -492,6 +492,7 @@ public:
        "}                                            \n";
   
      const char* fsh_source =
+       "precision mediump float;             \n"
        "varying vec3 v_color;                \n"
        "                                     \n"
        "void main()                          \n"
@@ -626,7 +627,7 @@ public:
     Transform3f trans;
     //trans.setIdentity();
     //trans.setScale(Vector3f(0.2f));
-    trans.setTranslate(Vector3f(0.0f, 0.0f, 150.0f));
+    trans.setTranslate(Vector3f(0.0f, 0.0f, 15.0f));
     trans.rotateX(-3.14f / 6);
     trans.rotateY(phi_1);
     
@@ -728,6 +729,8 @@ int main(int argc, char* argv[])
   WindowInfo wi;
   if (app.createWindow(wi))
   {
+    //GLenum err = glGetError();
+
     EffectColored effect;
     effect.init();
 
@@ -736,18 +739,18 @@ int main(int argc, char* argv[])
     
     
 
-    GeometryBoxColorIndirect* geometries = new GeometryBoxColorIndirect[10000];
+    GeometryBoxColorIndirect* geometries = new GeometryBoxColorIndirect[100];
     //GeometryBoxColorVBO geometry;
     //GeometryBoxColorVAO geometry[10000];
 
     DrawManager draw_manager;
     DrawContext draw_context;
     
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10; i++)
     {
-      for (int j = 0; j < 100; j++)
+      for (int j = 0; j < 10; j++)
       {
-         const int n = i * 100 + j;
+         const int n = i * 10 + j;
 
          DrawManager::Item* draw_item = draw_manager.createItem();
          draw_item->m_geometry = geometries + n;

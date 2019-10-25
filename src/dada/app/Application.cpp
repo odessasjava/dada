@@ -20,6 +20,8 @@
 # include<GL/glx.h>
 #endif
 
+#include "EGL/egl.h"
+
 #include <cstdio>
 #include "dada/app/Application.h"
 #include "dada/core/Log.h"
@@ -214,7 +216,7 @@ bool Application::createWindowWin()
     return false;
   }
 
-  m_rc = wglCreateContext(static_cast<HDC>(m_dc));
+  /*m_rc = wglCreateContext(static_cast<HDC>(m_dc));
   if (m_rc == NULL)
   {
     getLog() << "ERROR: Failed to create the rendering context" << endl;
@@ -227,9 +229,73 @@ bool Application::createWindowWin()
     getLog() << "ERROR: Unable to activate the rendering context" << endl;
     destroyWindow();
     return false;
+  }*/
+
+  // Get Display
+  EGLDisplay display = eglGetDisplay(static_cast<HDC>(m_dc));
+  if ( display == EGL_NO_DISPLAY )
+  {
+    return false;
   }
 
-  if (!initGL())
+  // Initialize EGL
+  EGLint majorVersion;
+  EGLint minorVersion;
+  if (!eglInitialize(display, &majorVersion, &minorVersion))
+  {
+    return false;
+  }
+
+  // Get configs
+  EGLint numConfigs;
+  if (!eglGetConfigs(display, NULL, 0, &numConfigs))
+  {
+    return false;
+  }
+
+  // Choose config
+  EGLint attribList[] =
+  {
+    EGL_RED_SIZE,       5,
+    EGL_GREEN_SIZE,     6,
+    EGL_BLUE_SIZE,      5,
+    EGL_ALPHA_SIZE,     /*(flags & ES_WINDOW_ALPHA) ? 8 :*/ EGL_DONT_CARE,
+    EGL_DEPTH_SIZE,     /*(flags & ES_WINDOW_DEPTH) ? 8 :*/ EGL_DONT_CARE,
+    EGL_STENCIL_SIZE,   /*(flags & ES_WINDOW_STENCIL) ? 8 :*/ EGL_DONT_CARE,
+    EGL_SAMPLE_BUFFERS, /*(flags & ES_WINDOW_MULTISAMPLE) ? 1 :*/ 0,
+    EGL_NONE
+  };
+  EGLConfig config;
+  if (!eglChooseConfig(display, attribList, &config, 1, &numConfigs))
+  {
+    return false;
+  }
+
+  // Create a surface
+  EGLSurface surface = eglCreateWindowSurface(display, config, (EGLNativeWindowType)(static_cast<HWND>(m_wnd)), NULL);
+  if (surface == EGL_NO_SURFACE)
+  {
+    return false;
+  }
+
+  // Create a GL context
+  EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
+  EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+  if (context == EGL_NO_CONTEXT)
+  {
+    return false;
+  }
+  
+  // Make the context current
+  if (!eglMakeCurrent(display, surface, surface, context))
+  {
+    return false;
+  }
+
+
+
+
+  if (!GL::init())
   {
     return false;
   }
@@ -249,7 +315,7 @@ void Application::destroyWindowWin()
     ShowCursor(TRUE);
   }
 
-  if (m_rc != NULL)
+  /*if (m_rc != NULL)
   {
     if (!wglMakeCurrent(NULL, NULL))
     {
@@ -260,7 +326,7 @@ void Application::destroyWindowWin()
       getLog() << "ERROR: Failed to release rendering context" << endl;
     }
     m_rc = NULL;
-  }
+  }*/
 
   if (m_dc != NULL)
   {

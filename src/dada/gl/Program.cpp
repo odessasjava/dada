@@ -21,6 +21,7 @@ Program::Program() :
   m_id(0),
   m_valid(false)
 {
+  GLenum pre_err = glGetError();
   m_id = glCreateProgram();
   GLenum err = glGetError();
   if (m_id == 0 || err != GL_NO_ERROR)
@@ -39,7 +40,8 @@ bool Program::attach(Shader& sh)
   m_valid = false;
   glAttachShader(m_id, sh.getID());
   GLenum err = glGetError();
-  return err == GL_NO_ERROR;
+  m_valid = (err == GL_NO_ERROR);
+  return m_valid;
 }
 
 bool Program::link()
